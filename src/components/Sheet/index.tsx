@@ -112,6 +112,10 @@ const BaseSheet = (props: BaseSheetProps) => {
   );
 };
 BaseSheet.open = (content: ReactNode, props: any) => {
+  const _props = {
+    ...{},
+    ...props,
+  };
   const renderChildren = () => {
     return (
       <View
@@ -129,17 +133,17 @@ BaseSheet.open = (content: ReactNode, props: any) => {
           height: height,
           backgroundColor: 'rgba(0,0,0,0)',
           justifyContent: 'flex-end',
-          ...(props.containerStyle || {}),
+          ...(_props.containerStyle || {}),
         }}
       >
         <BaseSheet
           snapPoints={undefined}
-          {...props}
+          {..._props}
           // eslint-disable-next-line react-native/no-inline-styles
           style={{
             position: 'absolute',
             zIndex: 99999,
-            ...(props.style || {}),
+            ...(_props.style || {}),
           }}
         >
           {content}

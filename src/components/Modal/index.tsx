@@ -28,21 +28,21 @@ export interface BaseModalProps extends ModalProps {
   pressBehavior: 'close' | 'none' | 'through' | Function;
   children?: null | ReactNode;
 }
-const BaseModal = (
-  props: BaseModalProps = {
-    opacity: 0.35,
-    show: false,
-    setShow: () => {},
-    enableTouchThrough: false,
-    pressBehavior: 'none', // 'none' | 'close' | 'through' | () => {}
-  }
-) => {
+const BaseModal = (props: BaseModalProps) => {
   // const context = useContext(ModalContext);
   // console.log('BaseModal context', context);
 
   const [target, setTarget] = useState<String | null>(null);
   const [isNow, setIsNow] = useState<boolean>(false);
-  const [modalProps, setModalProps] = useState<BaseModalProps>({ ...props });
+  const [modalProps, setModalProps] = useState<BaseModalProps>({
+    ...{
+      opacity: 0.35,
+      show: false,
+      enableTouchThrough: false,
+      pressBehavior: 'none', // 'none' | 'close' | 'through' | () => {}
+    },
+    ...props,
+  });
 
   useEffect(() => {
     console.log('useEffect props', props);
@@ -157,25 +157,26 @@ const BaseModal = (
   );
 };
 
-BaseModal.open = (
-  content: any,
-  props: BaseModalProps = {
-    show: false,
-    setShow: () => {
-      Overlay.close();
+BaseModal.open = (content: any, props: BaseModalProps) => {
+  const _props = {
+    ...{
+      show: false,
+      setShow: () => {
+        Overlay.close();
+      },
+      enableTouchThrough: false,
+      pressBehavior: 'close',
     },
-    enableTouchThrough: false,
-    pressBehavior: 'close',
-  }
-) => {
+    ...props,
+  };
   const renderChildren = () => {
     return (
       <>
         <BaseModal
-          {...props}
+          {..._props}
           show={true}
           containerStyle={{
-            ...props.containerStyle,
+            ..._props.containerStyle,
           }}
         >
           {content}
