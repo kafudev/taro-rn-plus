@@ -12,8 +12,9 @@ import nativeUpdate from './nativeUpdate.js';
 const checkHotUpdate = hotUpdate.check;
 // 原生更新检查
 const checkNativeUpdate = nativeUpdate.check;
-export { checkHotUpdate, checkNativeUpdate, hotUpdate, nativeUpdate };
 export default {
   hotUpdate,
   nativeUpdate,
+  checkHotUpdate,
+  checkNativeUpdate,
 };

@@ -6,7 +6,7 @@ const hotUpdate = {
   // 检查更新
   check: function ({ codepush_key, showLog }) {
     // 忽略开发模式
-    if (global.__DEV__) {
+    if (global.__DEV__ || !codepush_key) {
       return true;
     }
     this.showLog = showLog;
