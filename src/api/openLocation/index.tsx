@@ -1,19 +1,20 @@
 /**
- * chooseLocation
+ * openLocation
  *
  *
  */
 import * as React from 'react';
 import { Overlay } from '../../components/Overlay';
-import ChooseLocationView from './ChooseLocationView';
+import OpenLocationView from './OpenLocationView';
 
-export { ChooseLocationView };
+export { OpenLocationView };
 
-export async function chooseLocation(opts: any = {}): Promise<any> {
+export async function openLocation(opts: any = {}): Promise<any> {
   const { success, fail, complete } = opts;
   return new Promise((resolve, reject) => {
     Overlay.open(
-      <ChooseLocationView
+      <OpenLocationView
+        navigationBar={true}
         {...opts}
         fail={(res) => {
           fail?.(res);
@@ -23,7 +24,6 @@ export async function chooseLocation(opts: any = {}): Promise<any> {
         success={(res) => {
           success?.(res);
           complete?.(res);
-          Overlay.close();
           resolve(res);
         }}
       />,

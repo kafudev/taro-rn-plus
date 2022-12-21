@@ -4,9 +4,6 @@
  *
  */
 // @ts-ignore
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React from 'react';
-// @ts-ignore
 import { Toast as TToast, Overlay as TOverlay } from 'teaset';
 
 export interface ToastProps {
@@ -35,12 +32,15 @@ const Toast = {
     if (!text) {
       return;
     }
-    TToast.show({
-      text: text,
-      icon: icon,
-      position: position,
-      duration: duration,
-    });
+    let xpp: any = {
+      text,
+      position,
+      duration,
+    };
+    if (icon) {
+      xpp.icon = icon;
+    }
+    TToast.show(xpp);
   },
   // 文字
   text: function (
@@ -48,7 +48,7 @@ const Toast = {
     props: ToastProps = {
       text: '',
       type: 'message',
-      position: 'top',
+      position: 'bottom',
       duration: 'short',
       icon: '',
     }
@@ -87,4 +87,4 @@ const Toast = {
     TOverlay.hide();
   },
 };
-export default Toast;
+export { Toast };

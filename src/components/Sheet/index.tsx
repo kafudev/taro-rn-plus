@@ -23,7 +23,7 @@ import BottomSheet, {
   BottomSheetProps,
 } from '@gorhom/bottom-sheet';
 
-import Overlay from '../Overlay';
+import { Overlay } from '../Overlay';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -151,9 +151,9 @@ BaseSheet.open = (content: ReactNode, props: any) => {
       </View>
     );
   };
-  Overlay.open(renderChildren, props);
+  Overlay.open(renderChildren);
 };
 BaseSheet.close = () => {
   Overlay.close();
 };
-export default BaseSheet;
+export { BaseSheet as Sheet };

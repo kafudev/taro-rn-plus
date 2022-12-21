@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { View, Text, Button } from 'react-native';
-import Overlay from '../Overlay';
+import { Overlay } from '../Overlay';
 
 const App = () => {
   return (

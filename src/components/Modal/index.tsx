@@ -13,7 +13,10 @@ import {
   StyleProp,
   View,
 } from 'react-native';
-import Overlay from '../Overlay';
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ModalIndicator as TModal, TopView } from 'teaset';
+import { Overlay } from '../Overlay';
 
 import { ModalContext } from './modalContext';
 export { ModalContext };
@@ -160,33 +163,50 @@ const BaseModal = (props: BaseModalProps) => {
 BaseModal.open = (content: any, props: BaseModalProps) => {
   const _props = {
     ...{
-      show: false,
-      setShow: () => {
-        Overlay.close();
-      },
-      enableTouchThrough: false,
-      pressBehavior: 'close',
+      type: 'View',
+      modal: true,
+      animated: true,
+      overlayOpacity: 0,
+      overlayPointerEvents: 'auto',
+      autoKeyboardInsets: false,
+      style: { alignItems: 'center', justifyContent: 'center' },
     },
     ...props,
   };
-  const renderChildren = () => {
-    return (
-      <>
-        <BaseModal
-          {..._props}
-          show={true}
-          containerStyle={{
-            ..._props.containerStyle,
-          }}
-        >
-          {content}
-        </BaseModal>
-      </>
-    );
-  };
-  Overlay.open(renderChildren, props);
+  // !暂不使用原生Modal，会与兼容性问题
+  // const renderChildren = (
+  //   <>
+  //     <BaseModal
+  //       show={true}
+  //       containerStyle={{
+  //         ..._props.containerStyle,
+  //       }}
+  //       setShow={() => {
+  //         if (key) {
+  //           BaseModal.close();
+  //         } else {
+  //           BaseModal.closeAll();
+  //         }
+  //       }}
+  //       enableTouchThrough={false}
+  //       pressBehavior="close"
+  //     >
+  //       {content}
+  //     </BaseModal>
+  //   </>
+  // );
+  const renderChildren = <>{content}</>;
+  let key = Overlay.open(renderChildren, _props);
+  return key;
 };
-BaseModal.close = () => {
-  Overlay.close();
+BaseModal.close = (key?: number) => {
+  if (key) {
+    TopView.remove(key);
+    return;
+  }
+  TopView.removeAll();
 };
-export default BaseModal;
+BaseModal.closeAll = () => {
+  TopView.removeAll();
+};
+export { BaseModal as Modal };

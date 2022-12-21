@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+  <html lang="zh" style="height: 100%;padding:0;margin:0;">
+    <head>
+      <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+      <meta
+        content="width=device-width,initial-scale=1,user-scalable=yes"
+        name="viewport"
+      />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-touch-fullscreen" content="yes" />
+      <meta name="format-detection" content="telephone=no,address=no" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+      <title>地图</title>
+      <style>
+        .amap-copyright{
+          display: none !important;
+        }
+      </style>
+    </head>
+    <body style="display: flex;width: 100%;height: 100%;padding:0;margin:0;">
+      <div id="container" style="flex:1;width:100%; height: 100%"></div>
+      <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            // serviceHost: "",
+            securityJsCode: "f5e062627795929af202b259c058c905",
+        }
+      </script>
+      <script src="https://webapi.amap.com/maps?v=2.0&key=c6ebbd3113639d2a1c35ba50bef274f7"></script>
+      <script type="text/javascript">
+        // 地图初始化应该在地图容器div已经添加到DOM树之后
+        // 创建一个 Marker 实例：
+        var geolocation;
+        var map = new AMap.Map('container', {
+          zoom:14,//级别
+          center: [116.611279, 40.113257],//中心点坐标
+        });
+        //添加点标记，并使用自己的icon
+        var marker= new AMap.Marker({
+            position:  [116.611279, 40.113257],//位置
+            offset: new AMap.Pixel(-15, -35),
+            icon: new AMap.Icon({
+              image:'https://flatoss.oss-cn-shanghai.aliyuncs.com/test/20220226/1645848205223_mapAddress.png',
+              imageSize: new AMap.Size(28, 30)//图标大小
+            })
+        });
+        map.add(marker)
+        map.plugin(["AMap.ToolBar","AMap.Scale", 'AMap.Geolocation'],function(){
+            // 在图面添加工具条控件，工具条控件集成了缩放、平移、定位等功能按钮在内的 组合控件
+            map.addControl(new AMap.ToolBar({position:"RB", offset: [20,80]}));
+
+            // 比例尺，显示当前地图中心的比例尺
+            map.addControl(new AMap.Scale());
+
+            // 在图面添加定位控件，用来获取和展示用户主机所在的经纬度位置
+            geolocation = new AMap.Geolocation({
+              position:"RB",
+              offset: [20,20],
+              useNative: false,
+              zoomToAccuracy: true,
+              enableHighAccuracy: true, // 进行浏览器原生定位的时候是否尝试获取较高精 度，可能影响定位效率，默认为false
+              noIpLocate: 0, // 是否禁用IP精确定位，默认为0，0:都用 1:手机上不用 2:PC 上不用 3:都不用
+              noGeoLocation: 0, // 是否禁用浏览器原生定位，默认为0，0:都用 1:手机上不 用 2:PC上不用 3:都不用
+            })
+            map.addControl(geolocation);
+            // 定位
+            getCurrentPosition()
+            let dd = {
+              type: 'plugin_loaded',
+            }
+            window.ReactNativeWebView.postMessage(JSON.stringify(dd))
+        });
+        let moveEndFun = (e) => {
+          // 获取地图中心点
+          currentCenter = map.getCenter()
+          this.center = [currentCenter.lng, currentCenter.lat]
+          let dd = {
+            type: 'moveend',
+            longitude: currentCenter.lng,
+            latitude: currentCenter.lat
+          }
+          window.ReactNativeWebView.postMessage(JSON.stringify(dd))
+        }
+        // 绑定事件移动地图事件
+        map.on('moveend', moveEndFun)
+
+        function getCurrentPosition() {
+          if(geolocation) {
+            geolocation.getCurrentPosition(function(status,result){
+              console.log('getCurrentPosition',status, result)
+              if(status=='complete'){
+                  // onComplete(result)
+                  let dd = {
+                    type: 'geolocation_complete',
+                    status: status,
+                    result: result,
+                  }
+                  window?.ReactNativeWebView?.postMessage(JSON.stringify(dd))
+              }else{
+                  // onError(result)
+                  let dd = {
+                    type: 'geolocation_error',
+                    status: status,
+                    result: result,
+                  }
+                  window?.ReactNativeWebView?.postMessage(JSON.stringify(dd))
+              }
+            });
+          }
+        }
+      </script>
+    </body>
+  </html>

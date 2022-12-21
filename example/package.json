@@ -1,29 +1,26 @@
 {
-  "name": "react-native-taro-rn-plus-example",
-  "description": "Example app for react-native-taro-rn-plus",
+  "name": "taro-rn-plus-example",
   "version": "0.0.1",
   "private": true,
-  "main": "index",
   "scripts": {
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "start": "expo start"
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "pods": "pod-install --quiet"
   },
   "dependencies": {
-    "expo": "^45.0.0",
-    "expo-splash-screen": "~0.15.1",
     "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-native": "0.68.2",
-    "react-native-web": "0.17.7"
+    "react-native": "0.66.5",
+    "react-native-code-push": "7.0.5",
+    "react-native-gesture-handler": "1.10.3",
+    "react-native-reanimated": "2.9.1",
+    "react-native-webview": "11.14.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@babel/runtime": "^7.9.6",
-    "babel-loader": "^8.2.5",
-    "babel-plugin-module-resolver": "^4.0.0",
-    "babel-preset-expo": "~9.1.0",
-    "expo-cli": "^5.4.11"
+    "@babel/runtime": "^7.12.5",
+    "metro-react-native-babel-preset": "0.72.3",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "patch-package": "^6.5.0"
   }
 }

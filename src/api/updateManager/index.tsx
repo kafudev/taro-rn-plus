@@ -18,3 +18,11 @@ export default {
   checkHotUpdate,
   checkNativeUpdate,
 };
+const updateManager = {
+  hotUpdate,
+  nativeUpdate,
+  checkHotUpdate,
+  checkNativeUpdate,
+};
+
+export { updateManager };

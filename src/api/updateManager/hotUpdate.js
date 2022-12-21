@@ -68,7 +68,7 @@ const hotUpdate = {
       (progress.receivedBytes / progress.totalBytes) *
       100
     ).toFixed(2)}%`;
-    this.showLog && Toast.text(this.updateText);
+    this.showLog && Toast.text(this.updateText, { duration: 2000 });
   },
 };
 

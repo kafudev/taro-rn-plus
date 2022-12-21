@@ -4,49 +4,75 @@
  *
  */
 
-import React, { useState, useEffect, ReactChildren, ReactNode } from 'react';
-import { DeviceEventEmitter } from 'react-native';
+import React from 'react';
+import { View, Platform } from 'react-native';
+import { RootSiblingParent } from 'react-native-root-siblings';
+// @ts-ignore
+import { Overlay as TOverlay, TopView, Theme } from 'teaset';
 
-export interface OverlayProviderProps extends ReactChildren {
-  children: any;
-  content: null | ReactNode;
-}
+Theme.set({ fitIPhoneX: false, screenColor: 'rgba(0,0,0,0)' });
 
-const OverlayProvider = (props: OverlayProviderProps) => {
-  // console.log('OverlayProvider props', props);
-  const [content, setContent] = useState(props.content);
-
-  useEffect(() => {
-    DeviceEventEmitter.addListener('overlayOpen', (_props) => {
-      console.log('addListener overlayOpen', _props);
-      setContent(_props.content);
-    });
-    DeviceEventEmitter.addListener('overlayClose', (_props) => {
-      console.log('addListener overlayClose', _props);
-      setContent(null);
-    });
-  }, []);
-
+const RootView = (props: any) => {
+  const Wrapper = Platform.OS === 'ios' ? React.Fragment : RootSiblingParent;
   return (
-    <>
-      {props.children}
-      {content}
-    </>
+    <Wrapper>
+      <TopView>{props?.children}</TopView>
+    </Wrapper>
   );
 };
 
-export { OverlayProvider };
+export { RootView, RootSiblingParent };
 
-function Overlay(props: { children: any }) {
-  return <>{props.children}</>;
-}
+const Overlay = TOverlay;
 
-Overlay.open = (content: any, props = {}) => {
-  DeviceEventEmitter.emit('overlayOpen', { content, ...props });
-  console.log('overlay open');
+Overlay.open = (content: any, props: any = {}) => {
+  // console.log('Overlay.open', content, props);
+  let Wrapper: any = View;
+  if (props?.type === 'View') {
+    Wrapper = TOverlay.View;
+  }
+  const renderChildren = (
+    <>
+      <Wrapper
+        // eslint-disable-next-line react-native/no-inline-styles
+        style={{ alignItems: 'center', justifyContent: 'center' }}
+        modal={true}
+        animated={false}
+        overlayOpacity={1}
+        onAppearCompleted={() => {
+          console.log('onAppearCompleted');
+        }}
+        onDisappearCompleted={() => {
+          console.log('onDisappearCompleted');
+        }}
+        onCloseRequest={() => {
+          console.log('onCloseRequest', key);
+          if (key) {
+            Overlay.close(key);
+          } else {
+            Overlay.close();
+          }
+        }}
+        {...props}
+      >
+        {content}
+      </Wrapper>
+    </>
+  );
+  let key = TOverlay.show(renderChildren);
+  return key;
+  // setTimeout(() => {
+  // }, 100);
 };
-Overlay.close = () => {
-  DeviceEventEmitter.emit('overlayClose', {});
-  console.log('overlay close');
+Overlay.close = (key?: number) => {
+  if (key) {
+    TopView.remove(key);
+    return;
+  }
+  TopView.removeAll();
 };
-export default Overlay;
+Overlay.closeAll = () => {
+  TopView.removeAll();
+};
+
+export { Overlay };
