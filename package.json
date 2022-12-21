@@ -35,7 +35,7 @@
     "release-ci": "dotenv -- release-it --ci",
     "example": "yarn --cwd example",
     "bootstrap": "yarn example && yarn install && yarn example pods",
-    "postinstall": "yarn patch-package"
+    "prepare": "patch-package"
   },
   "keywords": [
     "react-native",
