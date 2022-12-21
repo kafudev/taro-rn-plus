@@ -1,6 +1,6 @@
 {
   "name": "taro-rn-plus",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Taro框架rn的增强性插件",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
