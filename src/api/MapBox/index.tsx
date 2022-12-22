@@ -4,13 +4,7 @@
  *
  */
 import * as React from 'react';
-import {
-  View,
-  PermissionsAndroid,
-  Platform,
-  Image,
-  StyleSheet,
-} from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import { sSize } from '../../utils/screen';
 
@@ -126,24 +120,6 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
   }
 
   const webviewRef = React.useRef(null);
-
-  React.useEffect(() => {
-    if (Platform.OS === 'ios') {
-      console.log('ios定位权限被允许');
-    } else {
-      const permissions = [PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION];
-      // @ts-ignore
-      PermissionsAndroid.requestMultiple(permissions).then((granteds) => {
-        if (granteds['android.permission.ACCESS_FINE_LOCATION'] === 'granted') {
-          // 定位权限被允许
-          console.log('android定位权限被允许');
-        } else {
-          // 定位权限被拒绝
-          console.log('android定位权限被拒绝');
-        }
-      });
-    }
-  }, []);
 
   // 转发ref
   React.useImperativeHandle(ref, () => ({

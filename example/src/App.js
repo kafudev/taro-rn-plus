@@ -16,6 +16,7 @@ import {
   TopView,
   chooseLocation,
   openLocation,
+  getLocation,
   choosePoi,
   MapBox,
   ChooseLocationView,
@@ -74,6 +75,17 @@ const App = () => {
                   longitude: '116.611279',
                 }).then((res) => {
                   console.log('choosePoi then', res);
+                });
+              }}
+            />
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <Button
+              title="getLocation"
+              onPress={() => {
+                console.log('getLocation');
+                getLocation({}).then((res) => {
+                  console.log('getLocation then', res);
                 });
               }}
             />

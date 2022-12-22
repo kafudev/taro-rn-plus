@@ -1,9 +1,11 @@
 import MapBox from './api/MapBox';
+import { getLocation } from './api/getLocation/index';
 import { openLocation, OpenLocationView } from './api/openLocation/index';
 import { chooseLocation, ChooseLocationView } from './api/chooseLocation/index';
 import { choosePoi, ChoosePoiView } from './api/choosePoi/index';
 import { updateManager } from './api/updateManager/index';
 
+export { getLocation };
 export { openLocation, OpenLocationView };
 export { chooseLocation, ChooseLocationView };
 export { choosePoi, ChoosePoiView };

@@ -17,6 +17,7 @@ import {
   Dimensions,
 } from 'react-native';
 import MapBox, { MapBoxRef, amapConfig } from '../MapBox';
+import { getLocation } from '../getLocation';
 import { sSize, sFont } from '../../utils/screen';
 
 const screenH = Dimensions.get('screen').height;
@@ -174,8 +175,8 @@ export type chooseLocationProps = {
 
 const ChooseLocationView = (props: chooseLocationProps) => {
   const {
-    latitude,
-    longitude,
+    latitude: _latitude,
+    longitude: _longitude,
     scale,
     success,
     // fail,
@@ -188,10 +189,30 @@ const ChooseLocationView = (props: chooseLocationProps) => {
   const [first, setFirst] = React.useState<boolean>(true); // 默认初始化
   const [list, setList] = React.useState<any>([]);
   const [page, setPage] = React.useState<number>(1);
+  const [latitude, setLatitude] = React.useState<number>(_latitude);
+  const [longitude, setLongitude] = React.useState<number>(_longitude);
   const [address, setAddress] = React.useState<any>(null);
   const [keyword, setKeyword] = React.useState<string>('');
   const [focus, setFocus] = React.useState<boolean>(false);
   const [scroll, setScroll] = React.useState<boolean>(false);
+
+  // 获取当前位置
+  const _getLocation = async () => {
+    try {
+      let res = await getLocation({});
+      if (res) {
+        const { latitude: __latitude, longitude: __longitude } = res;
+        setLatitude(__latitude);
+        setLongitude(__longitude);
+      }
+    } catch (error) {
+      console.log('定位失败', error);
+    }
+  };
+
+  if (!latitude && !longitude) {
+    _getLocation();
+  }
 
   // 关键词输入
   const onChangeText = (text: string) => {
@@ -267,17 +288,17 @@ const ChooseLocationView = (props: chooseLocationProps) => {
     // console.log('onMapBoxMessage', e.nativeEvent.data, data);
     if (data.type === 'complete') {
       // 地图加载完成
-      let _longitude = data.longitude;
-      let _latitude = data.latitude;
+      let __longitude = data.longitude;
+      let __latitude = data.latitude;
       setPage(1);
-      handleSearch(keyword, [_longitude, _latitude], 1, 30);
+      handleSearch(keyword, [__longitude, __latitude], 1, 30);
     }
     if (data.type === 'moveend') {
       // 地图移动结束
-      let _longitude = data.longitude;
-      let _latitude = data.latitude;
+      let __longitude = data.longitude;
+      let __latitude = data.latitude;
       setPage(1);
-      handleSearch(keyword, [_longitude, _latitude], 1);
+      handleSearch(keyword, [__longitude, __latitude], 1);
     }
     if (data.type === 'placeSearch_complete' && data.status === 'complete') {
       // 搜索结果
