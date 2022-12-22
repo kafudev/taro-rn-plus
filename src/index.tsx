@@ -12,6 +12,13 @@ export { choosePoi, ChoosePoiView };
 export { updateManager };
 export { MapBox };
 
+export {
+  gcj02_wgs84,
+  wgs84_gcj02,
+  bd09_gcj02,
+  gcj02_bd09,
+} from './api/getLocation/cover';
+
 export { Modal } from './components/Modal';
 export { Sheet } from './components/Sheet';
 export { Toast } from './components/Toast';
@@ -22,10 +29,11 @@ export { TopView, NavigationBar } from 'teaset';
 // 返回sSize, sFont
 export { sSize, sFont } from './utils/screen';
 
-// 如果是Taro, 则需要将chooseLocation, choosePoi, openLocation, updateManager添加到Taro的api中
+// 如果是Taro, 则需要将chooseLocation, choosePoi, getLocation, openLocation, updateManager添加到Taro的api中
 if (process.env.TARO_ENV === 'rn') {
   const Taro = require('@tarojs/taro').default;
   if (Taro) {
+    Taro.getLocation = getLocation;
     Taro.openLocation = openLocation;
     Taro.chooseLocation = chooseLocation;
     Taro.choosePoi = choosePoi;
@@ -33,6 +41,7 @@ if (process.env.TARO_ENV === 'rn') {
   }
   // Taro.api = {
   //   ...Taro.api,
+  //   getLocation,
   //   openLocation,
   //   chooseLocation,
   //   choosePoi,

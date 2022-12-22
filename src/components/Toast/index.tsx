@@ -3,8 +3,10 @@
  *
  *
  */
+import React from 'react';
+import { ActivityIndicator } from 'react-native';
 // @ts-ignore
-import { Toast as TToast, Overlay as TOverlay } from 'teaset';
+import { Toast as TToast, Theme } from 'teaset';
 
 export interface ToastProps {
   text: string | Element;
@@ -78,13 +80,22 @@ const Toast = {
   cancel: function (str = '取消操作') {
     return TToast.info(str);
   },
-  // 关闭
-  close: function () {
-    TOverlay.hide();
+  // 加载中
+  loading: function (str = '') {
+    return TToast.show({
+      text: str,
+      icon: <ActivityIndicator size="large" color={Theme.toastIconTintColor} />,
+      position: 'center',
+      duration: 10000,
+    });
   },
   // 关闭
-  hide: function () {
-    TOverlay.hide();
+  close: function (key?: number) {
+    TToast.hide(key);
+  },
+  // 关闭
+  hide: function (key?: number) {
+    TToast.hide(key);
   },
 };
 export { Toast };

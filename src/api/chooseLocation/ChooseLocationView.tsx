@@ -119,6 +119,13 @@ const styles = StyleSheet.create({
     // height: sSize(150),
     paddingBottom: sSize(10),
   },
+  scrollBoxText: {
+    color: '#888',
+    fontSize: sFont(16),
+    width: '100%',
+    marginTop: '30%',
+    textAlign: 'center',
+  },
   addressItemTouch: {
     display: 'flex',
     flexDirection: 'column',
@@ -188,6 +195,7 @@ const ChooseLocationView = (props: chooseLocationProps) => {
 
   const [first, setFirst] = React.useState<boolean>(true); // 默认初始化
   const [list, setList] = React.useState<any>([]);
+  const [boxText, setBoxText] = React.useState<string>('');
   const [page, setPage] = React.useState<number>(1);
   const [latitude, setLatitude] = React.useState<number>(_latitude);
   const [longitude, setLongitude] = React.useState<number>(_longitude);
@@ -199,20 +207,28 @@ const ChooseLocationView = (props: chooseLocationProps) => {
   // 获取当前位置
   const _getLocation = async () => {
     try {
-      let res = await getLocation({});
+      setBoxText('正在定位');
+      let res = await getLocation({ type: 'gcj02', maximumAge: 10000 });
       if (res) {
         const { latitude: __latitude, longitude: __longitude } = res;
         setLatitude(__latitude);
         setLongitude(__longitude);
+        setPage(1);
+        handleSearch(keyword, [__longitude, __latitude], 1, 30);
       }
     } catch (error) {
       console.log('定位失败', error);
+      // @ts-ignore
+      setBoxText('定位失败\n' + (error?.errMsg || ''));
     }
   };
 
-  if (!latitude && !longitude) {
-    _getLocation();
-  }
+  React.useEffect(() => {
+    if (!latitude && !longitude) {
+      _getLocation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 关键词输入
   const onChangeText = (text: string) => {
@@ -240,7 +256,7 @@ const ChooseLocationView = (props: chooseLocationProps) => {
       mapboxRef.current?.getPlaceSearch(
         _keyword,
         _center,
-        50000,
+        2000,
         _page,
         _pageSize
       );
@@ -336,6 +352,7 @@ const ChooseLocationView = (props: chooseLocationProps) => {
       setPage(1);
       // 清空选择
       setAddress(null);
+      setBoxText('搜索结果为空');
       setList([]);
     }
   };
@@ -458,6 +475,9 @@ const ChooseLocationView = (props: chooseLocationProps) => {
           style={styles.scrollAddress}
           onScrollEndDrag={onScroll}
         >
+          {list.length === 0 ? (
+            <Text style={styles.scrollBoxText}>{boxText}</Text>
+          ) : null}
           {list.map((item: any, index: React.Key | null | undefined) => {
             return (
               <TouchableOpacity

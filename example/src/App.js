@@ -57,8 +57,8 @@ const App = () => {
               onPress={() => {
                 console.log('chooseLocation');
                 chooseLocation({
-                  latitude: '40.113257',
-                  longitude: '116.611279',
+                  // latitude: '40.113257',
+                  // longitude: '116.611279',
                 }).then((res) => {
                   console.log('chooseLocation then', res);
                 });
@@ -71,8 +71,8 @@ const App = () => {
               onPress={() => {
                 console.log('choosePoi');
                 choosePoi({
-                  latitude: '40.113257',
-                  longitude: '116.611279',
+                  // latitude: '40.113257',
+                  // longitude: '116.611279',
                 }).then((res) => {
                   console.log('choosePoi then', res);
                 });

@@ -4,9 +4,11 @@
  *
  */
 // import { PermissionsAndroid, Platform } from 'react-native';
+import { wgs84_gcj02 } from './cover';
 export type getLocationProps = {
   altitude?: string;
   highAccuracyExpireTime?: number;
+  maximumAge?: number;
   isHighAccuracy?: boolean;
   type?: 'wgs84' | 'gcj02';
   success?: (res: any) => void;
@@ -17,8 +19,10 @@ export type getLocationProps = {
 export async function getLocation(opts: getLocationProps = {}): Promise<any> {
   const Geolocation = require('@react-native-community/geolocation').default;
   const {
+    type = 'wgs84',
     isHighAccuracy = false,
-    highAccuracyExpireTime = 10000,
+    highAccuracyExpireTime = 15000,
+    maximumAge = 5000,
     success,
     fail,
     complete,
@@ -78,8 +82,22 @@ export async function getLocation(opts: getLocationProps = {}): Promise<any> {
     Geolocation.getCurrentPosition(
       (position: any) => {
         console.log('Geolocation.getCurrentPosition success', position);
-        const { latitude, longitude, altitude, accuracy, speed } =
-          position?.coords;
+        const {
+          latitude: _latitude,
+          longitude: _longitude,
+          altitude,
+          accuracy,
+          speed,
+        } = position?.coords;
+        let latitude = _latitude;
+        let longitude = _longitude;
+        // wgs84 转 gcj02
+        if (type === 'gcj02') {
+          const [gcj02Lng, gcj02Lat] = wgs84_gcj02(_longitude, _latitude);
+          console.log('wgs84 转 gcj02', gcj02Lng, gcj02Lat);
+          latitude = gcj02Lat;
+          longitude = gcj02Lng;
+        }
         const res = {
           latitude,
           longitude,
@@ -96,8 +114,12 @@ export async function getLocation(opts: getLocationProps = {}): Promise<any> {
       },
       (err: any) => {
         console.log('Geolocation.getCurrentPosition err', err);
+        let errMsg = 'getLocation:fail';
+        if (err?.message) {
+          errMsg = 'getLocation:' + err.message;
+        }
         const res = {
-          errMsg: 'getLocation:fail',
+          errMsg,
           err,
         };
         fail?.(res);
@@ -108,7 +130,7 @@ export async function getLocation(opts: getLocationProps = {}): Promise<any> {
         // 当 maximumAge 为 0 时，如果不设置 timeout 或 timeout 太少可能会超时
         timeout: highAccuracyExpireTime,
         // maximumAge 设置为 0 则会获取当前位置，而不是获取一个前不久缓存的位置
-        maximumAge: 0,
+        maximumAge: maximumAge,
         enableHighAccuracy: isHighAccuracy,
       }
     );

@@ -119,7 +119,7 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
     );
   }
 
-  const webviewRef = React.useRef(null);
+  const webviewRef = React.useRef<WebView>(null);
 
   // 转发ref
   React.useImperativeHandle(ref, () => ({
@@ -131,9 +131,59 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
   }));
 
   // 地图webview消息
-  const onWebViewMessage = (e: any) => {
-    // console.log("MapBox onWebViewMessage", e.nativeEvent.data);
-    onMessage && onMessage(e);
+  const onWebViewMessage = (event: any) => {
+    // console.log('MapBox onWebViewMessage', event.nativeEvent.data);
+    let data: any = {};
+    try {
+      data = JSON.parse(event.nativeEvent.data);
+    } catch (e) {
+      console.log('onWebViewMessage parse error', e);
+    }
+    if (
+      data?.event &&
+      (data?.event === 'getCurrentPosition' ||
+        data?.event === 'watchPosition' ||
+        data?.event === 'clearWatch')
+    ) {
+      const Geolocation =
+        require('@react-native-community/geolocation').default;
+      if (data?.event === 'getCurrentPosition') {
+        Geolocation.getCurrentPosition(
+          (position: any) => {
+            console.log('Geolocation.getCurrentPosition', position);
+            webviewRef?.current?.postMessage(
+              JSON.stringify({ event: 'currentPosition', data: position })
+            );
+          },
+          (error: any) => {
+            console.log('Geolocation.getCurrentPosition error:', error);
+            webviewRef?.current?.postMessage(
+              JSON.stringify({ event: 'currentPositionError', data: error })
+            );
+          },
+          data.options
+        );
+      } else if (data?.event === 'watchPosition') {
+        Geolocation.watchPosition(
+          (position: any) => {
+            console.log('Geolocation.watchPosition', position);
+            webviewRef?.current?.postMessage(
+              JSON.stringify({ event: 'watchPosition', data: position })
+            );
+          },
+          (error: any) => {
+            console.log('Geolocation.watchPosition error:', error);
+            webviewRef?.current?.postMessage(
+              JSON.stringify({ event: 'watchPositionError', data: error })
+            );
+          },
+          data?.options
+        );
+      } else if (data?.event === 'clearWatch') {
+        Geolocation.clearWatch(data?.watchID);
+      }
+    }
+    onMessage && onMessage(event);
   };
 
   // 获取定位
@@ -193,6 +243,91 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
     }, 500);
   };
 
+  const injectedJS = () => {
+    let str = `
+      true; // note: this is required, or you'll sometimes get silent failures
+    `;
+    // 注入定位功能
+    str += getGeoLocationJS();
+    return str;
+  };
+
+  // 注入定位功能到js
+  const getGeoLocationJS = () => {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const getCurrentPosition = `
+      navigator.geolocation.getCurrentPosition = (success, error, options) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'getCurrentPosition', options: options }));
+        // android监听需要用document
+        document.addEventListener('message', (e) => {
+          let eventData = {}
+          try {
+            eventData = JSON.parse(e.data);
+          } catch (e) {}
+          if (eventData.event === 'currentPosition') {
+            success(eventData.data);
+          } else if (eventData.event === 'currentPositionError') {
+            error(eventData.data);
+          }
+        });
+        window.addEventListener('message', (e) => {
+          let eventData = {}
+          try {
+            eventData = JSON.parse(e.data);
+          } catch (e) {}
+          if (eventData.event === 'currentPosition') {
+            success(eventData.data);
+          } else if (eventData.event === 'currentPositionError') {
+            error(eventData.data);
+          }
+        });
+      };
+      true;
+    `;
+    const watchPosition = `
+      navigator.geolocation.watchPosition = (success, error, options) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'watchPosition', options: options }));
+        // android监听需要用document
+        document.addEventListener('message', (e) => {
+          let eventData = {}
+          try {
+            eventData = JSON.parse(e.data);
+          } catch (e) {}
+          if (eventData.event === 'watchPosition') {
+            success(eventData.data);
+          } else if (eventData.event === 'watchPositionError') {
+            error(eventData.data);
+          }
+        });
+        window.addEventListener('message', (e) => {
+          let eventData = {}
+          try {
+            eventData = JSON.parse(e.data);
+          } catch (e) {}
+          if (eventData.event === 'watchPosition') {
+            success(eventData.data);
+          } else if (eventData.event === 'watchPositionError') {
+            error(eventData.data);
+          }
+        });
+      };
+      true;
+    `;
+    const clearWatch = `
+      navigator.geolocation.clearWatch = (watchID) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'clearWatch', watchID: watchID }));
+      };
+      true;
+    `;
+    return `
+      (function() {
+        ${getCurrentPosition}
+        ${watchPosition}
+        ${clearWatch}
+      })();
+      true; // note: this is required, or you'll sometimes get silent failures
+    `;
+  };
   const mapHtml = `<!DOCTYPE html>
   <html lang="zh" style="height: 100%;padding:0;margin:0;">
     <head>
@@ -333,6 +468,7 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
         function getPlaceSearch(keyword='', center=[], radius = 2000, page = 1, pageSize = 10) {
           let PlaceSearchOptions = {
             city: "全国", //兴趣点城市
+            type: '',
             // type: '汽车服务|餐饮服务|购物服务|生活服务|体育休闲服务|医疗保健服务|住宿服务|风景名胜|商务住宅|政府机构及社会团体|科教文化服务|交通设施服务|金融保险服务|公司企业|地名地址信息', // 兴趣点类别
             pageSize: pageSize, //每页结果数,默认10
             pageIndex: page, //请求页码，默认1
@@ -388,10 +524,12 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
         originWhitelist={['*']}
         androidLayerType="hardware"
         scalesPageToFit={false}
+        geolocationEnabled={true}
+        javaScriptEnabled={true}
         // geolocationEnabled
         nestedScrollEnabled
         onMessage={onWebViewMessage}
-        //  injectedJavaScript={this.injectedJS()}
+        injectedJavaScript={injectedJS()}
         //   injectedJavaScript={`
         //    document.documentElement.style.padding = 0;
         //    document.documentElement.style.margin = 0;
