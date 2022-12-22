@@ -28,7 +28,7 @@ export async function getLocation(opts: getLocationProps = {}): Promise<any> {
     Geolocation.setRNConfiguration({
       skipPermissionRequests: false,
       authorizationLevel: 'whenInUse',
-      locationProvider: 'auto',
+      locationProvider: 'android', // 'auto' | 'playServices' | 'android'
     });
     Geolocation.requestAuthorization(
       () => {
