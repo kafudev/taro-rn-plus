@@ -96,7 +96,7 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
   const {
     latitude,
     longitude,
-    scale,
+    scale = 18,
     style,
     showCenter,
     showCenterMarker,
@@ -107,7 +107,10 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
   let amapConfig = Object.assign(
     {},
     // @ts-ignore
-    global.__amap_config || {},
+    global.__amap_config || {
+      key: '',
+      securityJsCode: '',
+    },
     _amapConfig || {}
   );
 
@@ -145,8 +148,7 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
         data?.event === 'watchPosition' ||
         data?.event === 'clearWatch')
     ) {
-      const Geolocation =
-        require('@react-native-community/geolocation').default;
+      let Geolocation = require('@react-native-community/geolocation').default;
       if (data?.event === 'getCurrentPosition') {
         Geolocation.getCurrentPosition(
           (position: any) => {
@@ -365,7 +367,7 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
         var placeSearch;
         // 创建一个 Marker 实例：
         var map = new AMap.Map('container', {
-          zoom:${scale || 14},//级别
+          zoom:${scale || 16},//级别
           center: [${longitude}, ${latitude}],//中心点坐标
         });
         //添加点标记，并使用自己的icon

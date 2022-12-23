@@ -31,13 +31,22 @@ Overlay.open = (content: any, props: any = {}) => {
   if (props?.type === 'View') {
     Wrapper = TOverlay.View;
   }
+  if (props?.type === 'PopView') {
+    Wrapper = TOverlay.PopView;
+  }
+  if (props?.type === 'PullView') {
+    Wrapper = TOverlay.PullView;
+  }
+  if (props?.type === 'PopoverView') {
+    Wrapper = TOverlay.PopoverView;
+  }
   const renderChildren = (
     <>
       <Wrapper
         // eslint-disable-next-line react-native/no-inline-styles
         style={{ alignItems: 'center', justifyContent: 'center' }}
-        modal={true}
-        animated={false}
+        modal={false}
+        animated={true}
         overlayOpacity={1}
         onAppearCompleted={() => {
           console.log('onAppearCompleted');
@@ -46,7 +55,7 @@ Overlay.open = (content: any, props: any = {}) => {
           console.log('onDisappearCompleted');
         }}
         onCloseRequest={() => {
-          console.log('onCloseRequest', key);
+          // console.log('onCloseRequest', key);
           if (key) {
             Overlay.close(key);
           } else {
@@ -54,6 +63,7 @@ Overlay.open = (content: any, props: any = {}) => {
           }
         }}
         {...props}
+        type={props?._type}
       >
         {content}
       </Wrapper>
@@ -61,8 +71,6 @@ Overlay.open = (content: any, props: any = {}) => {
   );
   let key = TOverlay.show(renderChildren);
   return key;
-  // setTimeout(() => {
-  // }, 100);
 };
 Overlay.close = (key?: number) => {
   if (key) {

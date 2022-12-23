@@ -3,7 +3,6 @@
  *
  *
  */
-
 import React, {
   useRef,
   useState,
@@ -22,13 +21,15 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetProps,
 } from '@gorhom/bottom-sheet';
-
+// @ts-ignore
+import { TopView } from 'teaset';
 import { Overlay } from '../Overlay';
 
 const { width, height } = Dimensions.get('screen');
 
 export interface BaseSheetProps extends BottomSheetProps {
   children: null | ReactNode;
+  onDismiss?: () => void;
 }
 const BaseSheet = (props: BaseSheetProps) => {
   const [sheetProps, setSheetProps] = useState({ ...props });
@@ -41,13 +42,15 @@ const BaseSheet = (props: BaseSheetProps) => {
 
   useEffect(() => {
     if (!backHandler) {
-      const _backHandler: NativeEventSubscription =
-        BackHandler.addEventListener('hardwareBackPress', () => {
+      let _backHandler: NativeEventSubscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => {
           console.log('hardwareBackPress');
           bottomSheetRef.current?.close();
-          BaseSheet.close();
+          props.onDismiss && props.onDismiss();
           return true;
-        });
+        }
+      );
       setBackHandler(_backHandler);
     }
 
@@ -57,6 +60,7 @@ const BaseSheet = (props: BaseSheetProps) => {
       }
       console.log('remove hardwareBackPress');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [backHandler]);
 
   // ref
@@ -71,9 +75,10 @@ const BaseSheet = (props: BaseSheetProps) => {
         if (backHandler) {
           backHandler.remove();
         }
-        BaseSheet.close();
+        props.onDismiss && props.onDismiss();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [backHandler]
   );
 
@@ -111,49 +116,61 @@ const BaseSheet = (props: BaseSheetProps) => {
     </BottomSheet>
   );
 };
-BaseSheet.open = (content: ReactNode, props: any) => {
+BaseSheet.open = (content: ReactNode, props: BaseSheetProps) => {
   const _props = {
-    ...{},
+    ...{
+      onDismiss: () => {
+        BaseSheet.close(key);
+      },
+    },
     ...props,
   };
-  const renderChildren = () => {
-    return (
-      <View
+  const renderChildren = (
+    <View
+      // eslint-disable-next-line react-native/no-inline-styles
+      style={{
+        margin: 0,
+        position: 'absolute',
+        zIndex: 99999,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        flex: 1,
+        width: width,
+        height: height,
+        backgroundColor: 'rgba(0,0,0,0)',
+        justifyContent: 'flex-end',
+        // @ts-ignore
+        ...(_props.containerStyle || {}),
+      }}
+    >
+      <BaseSheet
+        {..._props}
+        snapPoints={_props?.snapPoints || ['40%']}
         // eslint-disable-next-line react-native/no-inline-styles
         style={{
-          margin: 0,
           position: 'absolute',
-          zIndex: 99999,
-          bottom: 0,
-          left: 0,
-          right: 0,
-          top: 0,
-          flex: 1,
-          width: width,
-          height: height,
-          backgroundColor: 'rgba(0,0,0,0)',
-          justifyContent: 'flex-end',
-          ...(_props.containerStyle || {}),
+          zIndex: 999,
+          // @ts-ignore
+          ...(_props?.style || {}),
         }}
       >
-        <BaseSheet
-          snapPoints={undefined}
-          {..._props}
-          // eslint-disable-next-line react-native/no-inline-styles
-          style={{
-            position: 'absolute',
-            zIndex: 99999,
-            ...(_props.style || {}),
-          }}
-        >
-          {content}
-        </BaseSheet>
-      </View>
-    );
-  };
-  Overlay.open(renderChildren);
+        {content}
+      </BaseSheet>
+    </View>
+  );
+  let key = Overlay.open(renderChildren);
+  return key;
 };
-BaseSheet.close = () => {
-  Overlay.close();
+BaseSheet.close = (key?: number) => {
+  if (key) {
+    TopView.remove(key);
+    return;
+  }
+  TopView.removeAll();
+};
+BaseSheet.closeAll = () => {
+  TopView.removeAll();
 };
 export { BaseSheet as Sheet };

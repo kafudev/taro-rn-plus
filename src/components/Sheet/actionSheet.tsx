@@ -4,11 +4,11 @@
  *
  */
 
-import React from 'react';
+import * as React from 'react';
 import { View, Text, Button } from 'react-native';
 import { Overlay } from '../Overlay';
 
-const App = () => {
+const ActionSheet = () => {
   return (
     <View>
       <Text>弹窗主体内容</Text>
@@ -23,4 +23,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default ActionSheet;

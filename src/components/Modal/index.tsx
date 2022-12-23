@@ -160,16 +160,28 @@ const BaseModal = (props: BaseModalProps) => {
   );
 };
 
-BaseModal.open = (content: any, props: BaseModalProps) => {
+BaseModal.open = (content: any, props: any) => {
   const _props = {
     ...{
       type: 'View',
-      modal: true,
+      modal: false, // 默认模态，不允许点击遮罩关闭
       animated: true,
-      overlayOpacity: 0,
+      _type: 'zoomIn',
+      overlayOpacity: 0.4,
       overlayPointerEvents: 'auto',
       autoKeyboardInsets: false,
       style: { alignItems: 'center', justifyContent: 'center' },
+      onCloseRequest: () => {
+        // console.log('onCloseRequest', key);
+        if (props?.modal !== true) {
+          if (key) {
+            BaseModal.close(key);
+          } else {
+            BaseModal.close();
+          }
+          return;
+        }
+      },
     },
     ...props,
   };

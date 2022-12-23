@@ -11,7 +11,6 @@ import {
   Modal,
   Sheet,
   Toast,
-  ActionSheet,
   RootView,
   TopView,
   chooseLocation,
@@ -19,7 +18,6 @@ import {
   getLocation,
   choosePoi,
   MapBox,
-  ChooseLocationView,
 } from 'taro-rn-plus';
 StatusBar.setBackgroundColor('rgba(0,0,0,0.3)');
 // StatusBar.setTranslucent(true);
@@ -39,7 +37,7 @@ const App = () => {
             marginTop: 28,
             width: '100%',
             height: '100%',
-            backgroundColor: '#ccc',
+            backgroundColor: '#fefefe',
           }}
         >
           <View style={{ marginTop: 20 }}>
@@ -112,13 +110,14 @@ const App = () => {
               onPress={() => {
                 console.log('Modal');
                 Modal.open(
-                  <ChooseLocationView
-                    latitude={40.113257}
-                    longitude={116.611279}
+                  <View
+                    style={{
+                      width: 200,
+                      height: 200,
+                      backgroundColor: '#f60',
+                    }}
                   />,
-                  {
-                    enableTouchThrough: true,
-                  }
+                  { modal: false }
                 );
               }}
             />
@@ -128,9 +127,7 @@ const App = () => {
               title="Sheet"
               onPress={() => {
                 console.log('Sheet');
-                Sheet.open(<ActionSheet />, {
-                  enableTouchThrough: true,
-                });
+                Sheet.open(<View />, {});
               }}
             />
           </View>
