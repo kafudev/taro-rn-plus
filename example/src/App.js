@@ -17,13 +17,13 @@ import {
   openLocation,
   getLocation,
   choosePoi,
-  MapBox,
+  Map,
 } from 'taro-rn-plus';
 StatusBar.setBackgroundColor('rgba(0,0,0,0.3)');
 // StatusBar.setTranslucent(true);
 // StatusBar.setHidden(false);
 
-MapBox.setConfig({
+Map.setConfig({
   key: 'c6ebbd3113639d2a1c35ba50bef274f7',
   securityJsCode: 'f5e062627795929af202b259c058c905',
 });
@@ -101,6 +101,26 @@ const App = () => {
                 }).then((res) => {
                   console.log('openLocation then', res);
                 });
+              }}
+            />
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <Button
+              title="Map"
+              onPress={() => {
+                console.log('Map');
+                Modal.open(
+                  <Map
+                    style={{
+                      width: 200,
+                      height: 200,
+                      backgroundColor: '#f60',
+                    }}
+                    latitude="40.113257"
+                    longitude="116.611279"
+                  />,
+                  { modal: false }
+                );
               }}
             />
           </View>

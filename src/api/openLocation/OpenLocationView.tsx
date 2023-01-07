@@ -10,11 +10,20 @@ import {
   Linking,
   Text,
   TouchableOpacity,
+  Dimensions,
   StyleSheet,
 } from 'react-native';
 import MapBox, { MapBoxRef, amapConfig } from '../MapBox';
 import { NavigationBar } from '../../index';
 import { sSize, sFont } from '../../utils/screen';
+
+let screenW = Dimensions.get('screen').width;
+let screenH = Dimensions.get('screen').height;
+// 兼容横竖屏
+if (screenW > screenH) {
+  screenW = Dimensions.get('screen').height;
+  screenH = Dimensions.get('screen').width;
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -20,7 +20,13 @@ import MapBox, { MapBoxRef, amapConfig } from '../MapBox';
 import { getLocation } from '../getLocation';
 import { sSize, sFont } from '../../utils/screen';
 
-const screenH = Dimensions.get('screen').height;
+let screenW = Dimensions.get('screen').width;
+let screenH = Dimensions.get('screen').height;
+// 兼容横竖屏
+if (screenW > screenH) {
+  screenW = Dimensions.get('screen').height;
+  screenH = Dimensions.get('screen').width;
+}
 
 const upHeight = sSize((screenH / 5) * 3 - sSize(0));
 const downHeight = sSize(screenH - ((screenH / 5) * 3 - sSize(0)));

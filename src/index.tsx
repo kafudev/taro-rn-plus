@@ -1,4 +1,5 @@
 import MapBox from './api/MapBox';
+import { Map } from './components/Map';
 import { getLocation } from './api/getLocation/index';
 import { openLocation, OpenLocationView } from './api/openLocation/index';
 import { chooseLocation, ChooseLocationView } from './api/chooseLocation/index';
@@ -10,7 +11,7 @@ export { openLocation, OpenLocationView };
 export { chooseLocation, ChooseLocationView };
 export { choosePoi, ChoosePoiView };
 export { updateManager };
-export { MapBox };
+export { MapBox, Map };
 
 export {
   gcj02_wgs84,
