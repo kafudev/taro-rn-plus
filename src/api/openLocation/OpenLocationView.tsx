@@ -14,6 +14,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import MapBox, { MapBoxRef, amapConfig } from '../MapBox';
+import { Overlay } from '../../components/Overlay';
 import { NavigationBar } from '../../index';
 import { sSize, sFont } from '../../utils/screen';
 
@@ -33,6 +34,16 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
   },
+  headerLeftBtn: {
+    fontSize: sFont(15),
+    fontWeight: '400',
+    color: '#555',
+    paddingLeft: sSize(10),
+    paddingRight: sSize(10),
+    paddingBottom: sSize(5),
+    paddingTop: sSize(5),
+    borderRadius: sSize(5),
+  },
   mapbox: {
     width: '100%',
     height: '100%',
@@ -51,6 +62,7 @@ const styles = StyleSheet.create({
     paddingRight: sSize(15),
   },
   footerLeft: {
+    flex: 1,
     height: sSize(95),
     display: 'flex',
     flexDirection: 'column',
@@ -66,7 +78,7 @@ const styles = StyleSheet.create({
     fontSize: sFont(12),
     fontWeight: '400',
     color: '#555',
-    marginTop: sSize(4),
+    marginTop: sSize(6),
   },
   guideIcon: {
     width: sSize(45),
@@ -112,6 +124,17 @@ const OpenLocationView = (props: openLocationProps) => {
     }
   };
 
+  // 返回
+  const handleBack = () => {
+    console.log('返回openLocation');
+    const res = {
+      errMsg: 'openLocation:cancel',
+    };
+    success?.(res);
+    complete?.(res);
+    Overlay.close();
+  };
+
   // 地图webview消息
   const onMapBoxMessage = (e: { nativeEvent: { data: string } }) => {
     let data = JSON.parse(e.nativeEvent.data);
@@ -140,7 +163,18 @@ const OpenLocationView = (props: openLocationProps) => {
             position: 'absolute',
             zIndex: 10,
           }}
-          leftView={<></>}
+          leftView={
+            <>
+              <TouchableOpacity
+                activeOpacity={0.2}
+                onPress={() => {
+                  handleBack();
+                }}
+              >
+                <Text style={styles.headerLeftBtn}>关闭</Text>
+              </TouchableOpacity>
+            </>
+          }
           // @ts-ignore
           {...props?.navigationBar}
         />
