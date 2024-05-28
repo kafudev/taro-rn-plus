@@ -262,7 +262,7 @@ const ChooseLocationView = (props: chooseLocationProps) => {
       mapboxRef.current?.getPlaceSearch(
         _keyword,
         _center,
-        2000,
+        50000,
         _page,
         _pageSize
       );

@@ -201,7 +201,7 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
   const getPlaceSearch = (
     keyword: string = '',
     center: [number, number] = [longitude, latitude],
-    radius: number = 200,
+    radius: number = 50000,
     page: number = 1,
     pageSize: number = 10
   ) => {
@@ -467,7 +467,7 @@ const MapBox = React.forwardRef((props: MapBoxProps, ref) => {
         }
 
         // 根据关键字搜索附近地点
-        function getPlaceSearch(keyword='', center=[], radius = 2000, page = 1, pageSize = 10) {
+        function getPlaceSearch(keyword='', center=[], radius = 50000, page = 1, pageSize = 10) {
           let PlaceSearchOptions = {
             city: "全国", //兴趣点城市
             type: '',
