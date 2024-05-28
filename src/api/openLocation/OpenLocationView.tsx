@@ -17,6 +17,7 @@ import MapBox, { MapBoxRef, amapConfig } from '../MapBox';
 import { Overlay } from '../../components/Overlay';
 import { NavigationBar } from '../../index';
 import { sSize, sFont } from '../../utils/screen';
+import { gcj02_wgs84 } from '../getLocation/cover';
 
 let screenW = Dimensions.get('screen').width;
 let screenH = Dimensions.get('screen').height;
@@ -120,7 +121,12 @@ const OpenLocationView = (props: openLocationProps) => {
     if (latitude && longitude) {
       // let MapLinking = require('react-native-map-linking').default;
       // MapLinking.markLocation({ lat: latitude, lng: longitude }, name, address);
-      Linking.openURL(`geo:${latitude}, ${longitude}`);
+      // 转换成gps经纬度
+      const [gLng, gLat] = gcj02_wgs84(longitude, latitude);
+      console.log('gcj02 转 wgs84', longitude, latitude, gLng, gLat);
+      // let MapLinking = require('react-native-map-linking').default;
+      // MapLinking.markLocation({ lat: latitude, lng: longitude }, name, address);
+      Linking.openURL(`geo:${gLat},${gLng}?q=${name || ''}`);
     }
   };
 

@@ -84,8 +84,8 @@ export function gcj02_wgs84(lng: number, lat: number) {
     let sqrtmagic = Math.sqrt(magic);
     dlat = (dlat * 180.0) / (((a * (1 - ee)) / (magic * sqrtmagic)) * PI);
     dlng = (dlng * 180.0) / ((a / sqrtmagic) * Math.cos(radlat) * PI);
-    let mglat = lat + dlat;
-    let mglng = lng + dlng;
+    let mglat = parseFloat(lat + '') + parseFloat(dlat + '');
+    let mglng = parseFloat(lng + '') + parseFloat(dlng + '');
     return [lng * 2 - mglng, lat * 2 - mglat];
   }
 }
