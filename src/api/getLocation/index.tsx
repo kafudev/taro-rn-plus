@@ -10,6 +10,7 @@ export type getLocationProps = {
   highAccuracyExpireTime?: number;
   maximumAge?: number;
   isHighAccuracy?: boolean;
+  needFullAccuracy?: boolean;
   type?: 'wgs84' | 'gcj02';
   success?: (res: any) => void;
   fail?: (res: any) => void;
@@ -21,7 +22,7 @@ export async function getLocation(opts: getLocationProps = {}): Promise<any> {
   const {
     type = 'wgs84',
     isHighAccuracy = false,
-    highAccuracyExpireTime = 15000,
+    highAccuracyExpireTime = 10000,
     maximumAge = 5000,
     success,
     fail,
@@ -34,9 +35,66 @@ export async function getLocation(opts: getLocationProps = {}): Promise<any> {
       authorizationLevel: 'whenInUse',
       locationProvider: 'android', // 'auto' | 'playServices' | 'android'
     });
-    Geolocation.requestAuthorization(
+    return Geolocation.requestAuthorization(
       () => {
         console.log('Geolocation.requestAuthorization success');
+        return Geolocation.getCurrentPosition(
+          (position: any) => {
+            console.log('Geolocation.getCurrentPosition success', position);
+            const {
+              latitude: _latitude,
+              longitude: _longitude,
+              altitude,
+              accuracy,
+              speed,
+            } = position?.coords;
+            let latitude = _latitude;
+            let longitude = _longitude;
+            // wgs84 转 gcj02
+            if (type === 'gcj02') {
+              const [gcj02Lng, gcj02Lat] = wgs84_gcj02(_longitude, _latitude);
+              console.log('wgs84 转 gcj02', gcj02Lng, gcj02Lat);
+              latitude = gcj02Lat;
+              longitude = gcj02Lng;
+            }
+            const res = {
+              latitude,
+              longitude,
+              speed: speed ?? 0,
+              altitude: altitude ?? 0,
+              accuracy,
+              verticalAccuracy: 0,
+              horizontalAccuracy: 0,
+              errMsg: 'getLocation:ok',
+            };
+            success?.(res);
+            complete?.(res);
+            console.log('resolve');
+            return Promise.resolve(res);
+          },
+          (err: any) => {
+            console.log('Geolocation.getCurrentPosition err', err);
+            let errMsg = 'getLocation:fail!';
+            if (err?.message) {
+              errMsg = 'getLocation:' + err.message;
+            }
+            const res = {
+              errMsg,
+              err,
+            };
+            fail?.(res);
+            complete?.(res);
+            console.log('reject');
+            return Promise.reject(res);
+          },
+          {
+            // 当 maximumAge 为 0 时，如果不设置 timeout 或 timeout 太少可能会超时
+            timeout: highAccuracyExpireTime || 5000,
+            // maximumAge 设置为 0 则会获取当前位置，而不是获取一个前不久缓存的位置
+            maximumAge: maximumAge,
+            enableHighAccuracy: isHighAccuracy,
+          }
+        );
       },
       (error: {
         code: number;
@@ -73,66 +131,13 @@ export async function getLocation(opts: getLocationProps = {}): Promise<any> {
     //   }
     // }
   } catch (err) {
-    const res = { errMsg: 'Permissions denied!' };
+    let errMsg = 'getLocation:catch fail!';
+    const res = {
+      errMsg,
+      err,
+    };
     fail?.(res);
     complete?.(res);
     return Promise.reject(res);
   }
-  return new Promise((resolve, reject) => {
-    Geolocation.getCurrentPosition(
-      (position: any) => {
-        console.log('Geolocation.getCurrentPosition success', position);
-        const {
-          latitude: _latitude,
-          longitude: _longitude,
-          altitude,
-          accuracy,
-          speed,
-        } = position?.coords;
-        let latitude = _latitude;
-        let longitude = _longitude;
-        // wgs84 转 gcj02
-        if (type === 'gcj02') {
-          const [gcj02Lng, gcj02Lat] = wgs84_gcj02(_longitude, _latitude);
-          console.log('wgs84 转 gcj02', gcj02Lng, gcj02Lat);
-          latitude = gcj02Lat;
-          longitude = gcj02Lng;
-        }
-        const res = {
-          latitude,
-          longitude,
-          speed: speed ?? 0,
-          altitude: altitude ?? 0,
-          accuracy,
-          verticalAccuracy: 0,
-          horizontalAccuracy: 0,
-          errMsg: 'getLocation:ok',
-        };
-        success?.(res);
-        complete?.(res);
-        resolve(res);
-      },
-      (err: any) => {
-        console.log('Geolocation.getCurrentPosition err', err);
-        let errMsg = 'getLocation:fail';
-        if (err?.message) {
-          errMsg = 'getLocation:' + err.message;
-        }
-        const res = {
-          errMsg,
-          err,
-        };
-        fail?.(res);
-        complete?.(res);
-        reject(res);
-      },
-      {
-        // 当 maximumAge 为 0 时，如果不设置 timeout 或 timeout 太少可能会超时
-        timeout: highAccuracyExpireTime,
-        // maximumAge 设置为 0 则会获取当前位置，而不是获取一个前不久缓存的位置
-        maximumAge: maximumAge,
-        enableHighAccuracy: isHighAccuracy,
-      }
-    );
-  });
 }

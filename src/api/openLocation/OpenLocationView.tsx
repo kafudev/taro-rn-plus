@@ -12,10 +12,10 @@ import {
   TouchableOpacity,
   Dimensions,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import MapBox, { MapBoxRef, amapConfig } from '../MapBox';
 import { Overlay } from '../../components/Overlay';
-import { NavigationBar } from '../../index';
 import { sSize, sFont } from '../../utils/screen';
 import { gcj02_wgs84 } from '../getLocation/cover';
 
@@ -35,10 +35,26 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
   },
+  headerBox: {
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    height: sSize(80),
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingLeft: sSize(15),
+    paddingRight: sSize(15),
+    paddingBottom: sSize(5),
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    // backgroundColor: "#f60",
+    zIndex: 2,
+  },
   headerLeftBtn: {
     fontSize: sFont(15),
     fontWeight: '400',
-    color: '#555',
+    color: '#fff',
     paddingLeft: sSize(10),
     paddingRight: sSize(10),
     paddingBottom: sSize(5),
@@ -126,7 +142,14 @@ const OpenLocationView = (props: openLocationProps) => {
       console.log('gcj02 转 wgs84', longitude, latitude, gLng, gLat);
       // let MapLinking = require('react-native-map-linking').default;
       // MapLinking.markLocation({ lat: latitude, lng: longitude }, name, address);
-      Linking.openURL(`geo:${gLat},${gLng}?q=${name || ''}`);
+      if (Platform.OS === 'ios') {
+        // ios 使用apple地图
+        Linking.openURL(
+          `http://maps.apple.com/?ll=${latitude},${longitude}&q=${name || ''}`
+        );
+      } else {
+        Linking.openURL(`geo:${gLat},${gLng}?q=${name || ''}`);
+      }
     }
   };
 
@@ -158,32 +181,16 @@ const OpenLocationView = (props: openLocationProps) => {
   return (
     <View style={styles.container}>
       {props?.navigationBar && (
-        <NavigationBar
-          title="地图"
-          // eslint-disable-next-line react-native/no-inline-styles
-          titleStyle={{ color: '#333' }}
-          statusBarStyle="dark-content"
-          // eslint-disable-next-line react-native/no-inline-styles
-          style={{
-            backgroundColor: '#ffffff',
-            position: 'absolute',
-            zIndex: 10,
-          }}
-          leftView={
-            <>
-              <TouchableOpacity
-                activeOpacity={0.2}
-                onPress={() => {
-                  handleBack();
-                }}
-              >
-                <Text style={styles.headerLeftBtn}>关闭</Text>
-              </TouchableOpacity>
-            </>
-          }
-          // @ts-ignore
-          {...props?.navigationBar}
-        />
+        <View style={styles.headerBox}>
+          <TouchableOpacity
+            activeOpacity={0.2}
+            onPress={() => {
+              handleBack();
+            }}
+          >
+            <Text style={styles.headerLeftBtn}>关闭</Text>
+          </TouchableOpacity>
+        </View>
       )}
       <MapBox
         ref={mapboxRef}
